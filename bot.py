@@ -11,29 +11,51 @@ bot = Bot(token=TOKEN)
 def is_live():
     try:
         url = f"https://kick.com/api/v1/channels/{USERNAME}"
+
+        print("Checking:", url)
+
         r = requests.get(url, timeout=10)
+
+        print("Status Code:", r.status_code)
+        print("Response:", r.text[:500])
+
         data = r.json()
-        return data.get("livestream") is not None
-    except:
+
+        live = data.get("livestream") is not None
+
+        print("Live =", live)
+
+        return live
+
+    except Exception as e:
+        print("ERROR:", str(e))
         return False
 
 async def send_live():
-    keyboard = [
-        [InlineKeyboardButton("🟢Live🟢", url=f"https://kick.com/{USERNAME}")]
-    ]
+    try:
+        keyboard = [
+            [InlineKeyboardButton("🟢Live🟢", url=f"https://kick.com/{USERNAME}")]
+        ]
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
-    caption = "<b>🔴 LIVE STARTED</b>\n\nStream is now live 👇"
+        caption = "<b>🔴 LIVE STARTED</b>\n\nStream is now live 👇"
 
-    with open("am1razzzz.png", "rb") as photo:
-        await bot.send_photo(
-            chat_id=CHANNEL,
-            photo=photo,
-            caption=caption,
-            parse_mode="HTML",
-            reply_markup=reply_markup
-        )
+        print("Sending Telegram message...")
+
+        with open("am1razzzz.png", "rb") as photo:
+            await bot.send_photo(
+                chat_id=CHANNEL,
+                photo=photo,
+                caption=caption,
+                parse_mode="HTML",
+                reply_markup=reply_markup
+            )
+
+        print("Message sent successfully!")
+
+    except Exception as e:
+        print("SEND ERROR:", str(e))
 
 async def main():
     print("Bot started")
@@ -43,7 +65,10 @@ async def main():
     while True:
         live = is_live()
 
+        print("Current status =", live)
+
         if live and not was_live:
+            print("LIVE DETECTED!")
             await send_live()
 
         was_live = live
