@@ -1,3 +1,5 @@
+print("HELLO BOT IS RUNNING")
+
 import asyncio
 import requests
 from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
